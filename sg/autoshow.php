@@ -1,8 +1,10 @@
-<?php
+﻿<?php
 require 'dbconnect.php';
-$id_now=$_POST['id_now'];
+$id_now = $_POST['id_now'];
+//$id_now=$_POST['id_now'];
 $bantin = "";
 $sql1="SELECT bantin FROM bantin WHERE STT='".$id_now."'";
+
 $query1 =mysql_query($sql1);
 
 while( $row1 = mysql_fetch_array($query1)){
@@ -152,6 +154,35 @@ while( $row1 = mysql_fetch_array($query1)){
 		}else $bc = 0;
 	}
 
+
+	
+	}
+	if (strpos($result, "#RI") !== false){ // #RI:NNNNMMD1D2D3D4 D5D6D7D8..... 
+		$network_ip = substr($result, 4, 4);//NNNN
+		$mac = substr($result, 8, 2);//MM
+		$data = substr($result, 10); // D1D2D3D4D5D6D7D8......
+		if("01"<=$mac && $mac < "A0"){
+		
+		$bantin = $bantin."<b> Bản tin yêu cầu lấy ảnh ...</b></br>";
+		$bantin = $bantin."<b> Hiển thị ảnh mà sensor ".$mac." gửi về </b></br></br>";
+		//$imagedata = base64_decode($data);
+		$bantin = $bantin. "<img src='data:image/jpeg;base64,$data'/></br>";
+		//$bantin = $bantin."data : ".$data."<br/>";
+		//$sql2 = "SELECT data FROM image WHERE id = '".$id_now."'";
+		//$byteArray = mysql_query($sql2);
+		//while($row = mysql_fetch_array($byteArray) ){
+			//$result1 = $row['data'];
+			//echo "<img src='data:image/jpeg; base64','".$result."'/>";
+			//}
+		}
+		if ('29' < $mac && $mac< '40' || $mac =="B1") { 
+			$bc = 1;
+		}else $bc = 0;
+		}
+		
+		
+	
+	
 	if(strpos($result,"#SN") !== false){
      	$network_ip = substr($result,4,4);
      	$mac = substr($result,8,2);
@@ -217,11 +248,14 @@ while( $row1 = mysql_fetch_array($query1)){
 		}
 	}
 	
-	if(strpos($result,"VL") !== false){//#SL:MM
-     	$mac = substr($result,4,2);
-     	$bantin= $bantin."<b>Node số '".$mac."' đã vào trạng thái ngủ.</b><br>";     	
-	}
-}
+	//if(strpos($result,"VL") !== false){//#SL:MM
+     //	$mac = substr($result,4,2);
+     	//$bantin= $bantin."<b>Node số '".$mac."' đã vào trạng thái ngủ.</b><br>";     	
+	//}
+$sql = "SELECT data FROM image WHERE id = '".$id_now."'";
+$byteArray = mysql_query($sql);
+$img = "";
+
 
 $member = array('bc' => $bc
 		,'bantin' => $bantin);

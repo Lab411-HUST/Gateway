@@ -32,70 +32,153 @@ $insertID = $insertID - 5;
 $sql5 = "DELETE FROM bantin WHERE STT='".$insertID."'";
 mysql_query($sql5);
 
-if(strpos($result,"JN:")!==false){	//#JN:NNNNMM
-	$my_query = "INSERT INTO Sensors(data) VALUES ('".$result1."')";
-	mysql_query ($my_query);
-		$mac = substr ($result,8,2);//MM
-		$network_ip = substr ($result,4,4);//NNNN
-		
-		$my_query = "INSERT INTO data_sensor(mac,netip,cat,time) VALUES ('".$mac."','".$network_ip."',1,now())";
-		mysql_query ($my_query);
-		
-		$sql1 = "SELECT * FROM cdata WHERE mac='".$mac."'";
-		$query1 = mysql_query($sql1);
-		$row_no = mysql_num_rows($query1);	
-		if($row_no==0){
-			$check = 0;//Neu chua ton tai dia chi mac
-		}
-		else $check=1;
-		if( "01"<= $mac && $mac < "A0"){//Sensor
-			if($check == 1){//Da ton tai mac thi thay the
-				$my_query = "UPDATE cdata SET netip = '".$network_ip."', nodecat = 'sensor', status=1 WHERE mac = '".$mac."'";
-				mysql_query($my_query);
-			}
-			else{//Xet dia chi mang
-				$sql2 = "SELECT * FROM cdata WHERE netip = '".$network_ip."'";
-				$query2 = mysql_query($sql2);
-				$row_no2 = mysql_num_rows($query2);
-				if($row_no2==0){
-					$checkip = 0;//Neu ko ton tai dia chi mang
-				}
-				else $checkip=1;
-				if ($checkip==1){
-					$my_query = "UPDATE cdata SET mac = '".$mac."', nodecat = 'sensor', status=1 WHERE netip = '".$network_ip."'";
-					mysql_query($my_query);
-				}
-				else {
-					$my_query = "INSERT INTO cdata(mac,netip,nodecat,status) VALUES ('".$mac."','".$network_ip."','sensor',1)";
-					mysql_query ($my_query);
-				}
-			}
-		}
-		else{ // artor
-			if($check == 1){
-				$my_query = "UPDATE cdata SET netip = '".$network_ip."', nodecat = 'actor' WHERE mac = '".$mac."'";
-				mysql_query($my_query);
-			}
-			else{
-				$sql2 = "SELECT * FROM cdata WHERE netip = '".$network_ip."'";
-				$query2 = mysql_query($sql2);
-				$row_no2 = mysql_num_rows($query2);
-				if($row_no2==0){
-					$checkip = 0;//Neu ko ton tai dia chi ip
-				}
-				else $checkip=1;
-				if ($checkip==1){
-					$my_query = "UPDATE cdata SET mac = '".$mac."', nodecat = 'actor', status=1 WHERE netip = '".$network_ip."'";
-					mysql_query($my_query);
-				}
-				else{
-				$my_query = "INSERT INTO cdata(mac,netip,nodecat,status) VALUES ('".$mac."','".$network_ip."','actor',1)";
-				mysql_query($my_query);
-				}
-			}
-		}	
-}
+$sql = "INSERT INTO tblimg(name,image) VALUES ('".$result."')";
+mysql_query($sql);
+$sql1 = "DELETE FROM tblimg WHERE STT '".$insertID."'";
+mysql_query($sql1);
 
+
+if(strpos($result, "JN") !== false){ // #JN:MMMMNN
+	$my_query = "INSERT INTO sensors(data) VALUE ('".$result."')"; // câu lệnh truy vấn chèn bản tin vào sensor 
+	mysql_query($my_query); // thực hiện 
+	$mac = substr($result, 8, 2 ); //NN
+	$network_ip = substr($result, 4, 4);//MMMM
+	
+	$my_query = "INSERT INTO data_sensor(mac, netip, cat, time) VALUE ('".$mac."', '".$network_ip."', '1', 'now()')";	
+	mysql_query($my_query);
+	}
+	
+	$sql1 = "SELECT * FROM cdata WHERE mac = '".$mac."'";
+	$query1 = mysql_query($sql1);
+	$row_no = mysql_num_rows($query1); // đếm số dòng dữ liệu trong bảng
+	if( $row_no == 0){
+		$check = 0; // chưa tồn tại địa chỉ mac
+		} else $check =1;
+		if( "01"<= $mac && $mac <"A0"){// sensor bc và vườn lan
+			if($check ==1){ // đã tồn tại đc mac thì update địa chỉ ip
+				$my_query = "UPDATE cdata SET netip = '".$network_ip."', nodecat = 'sensor', status = '1' WHERE mac = '".$mac."'";
+				mysql_query($my_query);
+				} else { // chưa tồn tại thì xét địa chỉ mạng
+				 $sql2 = "SELECT * FROM cdata WHERE netip = '".$network_ip."'";
+				 $query2 = mysql_query($sql2);
+				 $row_no2 = mysql_num_rows($query2); 
+				 if( $row_no2 == 0){
+					 $checkip = 0;
+					 } else $checkip =1; 
+					 if($checkip ==1){ // tồn tại địa chỉ mạng thì update địa chỉ mac
+						 $my_query = "UPDATE cdata SET mac = '".$mac."', nodecat = 'sensor', status = '1' WHERE netip = '".$network_ip."'";
+						 mysql_query($my_query);
+						 }
+						 else {
+							 $my_query = "INSERT INTO cdata(mac, netip, nodecat, status) VALUE ('".$mac."', '".$network_ip."', 'sensor, '1') ";
+							 mysql_query($my_query);
+							 }
+				     }	 
+					}
+	else{ // actor
+		if($check==1){ // tồn tại địa chỉ mac thì xét địa chỉ mạng
+		$my_query = "UPDATE cdata SET netip = '".$network_ip."', nodecat = 'actor', status = '1' WHERE mac = '".$mac."'";
+		mysql_query($my_query);
+		} else { // chưa tồn tại thì xét địa chỉ mạng 
+			$sql2= "SELECT * FROM cdata WHERE netip = '".$network_ip."'";
+			$query2 = mysql_query($sql2);
+			$row_no2 = mysql_num_rows($query2);// đếm số dong dữ liệu trong bảng
+			if($row_no2 == 0){
+				$checkip = 0; 
+				} else $checkip = 1; {
+					if($checkip ==1){ // tồn tại thì thay thế đc mac
+						$my_query = "UPDATE cdata SET mac = '".$mac."', nodecat = 'actor', status = '1' WHERE netip = '".$network_ip."'";
+						mysql_query($my_query);
+						} else {
+							$my_query = "INSERT INTO cdata (mac, netip, nodecat, status) VALUE ('".$mac."', '".$network_ip."', 'actor', '1')";
+							mysql_query($my_query);							
+							}
+				}
+			}
+				
+	}
+						
+			
+	
+
+//if(strpos($result, "RI:")!==false){ #RI: NNNN MM D1D2D3D4 D5D6D7.....
+//	$my_query = "INSERT INTO img(data) VALUES ('".$result1."')";
+//	mysql_query ($my_query);
+//	$network_ip = substr($result, 4,4);
+//	$mac = substr($result, 8,2);
+//	$data = substr($result, 10);
+//	
+	
+///	$my_query = "INSERT INTO data_sensor(mac,netip,cat,time) VALUES ('".$mac."','".$network_ip."',1,now())";
+//	mysql_query ($my_query); 
+	
+	
+//	$sql1 = "SELECT * FROM cdata WHERE mac='".$mac."'";
+	//$query1 = mysql_query($sql1);
+	//$row_no = mysql_num_rows($query1);	
+	//if($row_no == 0){ // nếu chưa tồn tại địa chỉ mac thì kt xem tồn tại địa chỉ mạng hay chưa	
+//			$check = 0;//Neu chua tn tai dia chi mac
+//		}
+//	 else $check = 1;
+//	 if("01"<= $mac && $mac <"A0"){
+//		 if($check == 1){  // kiem tra đia chi mac đã tồn tại thì thay thế địa chỉ Ip
+//			 $my_query  = " UPDATE cdata SET netip = '".$network_ip."' , notecat = 'sensor', status = '1' WHERE mac = '".$mac."' ";
+//			 mysql_query($my_query);
+//			 }
+//		else { // xet dia chi mang
+//			$sql2 = " SELECT * FROM cdata WHERE netip = '".$network_ip."' ";
+//			$query2 = mysql_query($sql2);
+//			$row_no2 = mysql_num_rows($query2);
+//			
+//			if($row_no2 == 0){
+//				$check = 0; // neu khong ton tai dia chi ip
+//				}
+//			else $check = 1;
+//			if($check = 1){ // neu ton tai thi thay the dia chi mac 
+//			$my_query = " UPDATE cdata SET mac = '".$mac."' , notecat = 'sensor', status = '1' WHERE netip = '".$network_ip."'  ";
+//			mysql_query($my_query);	
+//				}
+//				else {
+//					$my_query = " INSERT INTO cdata(mac, netip, notecat, status) VALUES ('".$mac."', '".$network_ip."', 'sensor', 1)";
+//					mysql_query($my_query);
+		//	}
+	//		}
+	//	 }
+	 
+	
+//}
+if(strpos($result,"RI")!= false){ //#RI:NNNNMMD1D2D3D4D5D6.....
+	$network_ip = substr($result, 4, 4);// NNNN
+	$mac = substr($result, 8, 2);//MM
+	$data = substr($result, 10); // D1D2D3D4D5D6...
+	
+	$sql4 = "SELECT * FROM cdata WHERE mac = '".$mac."'";
+	$queryig = mysql_query($sql4);
+	$row1 = mysql_num_rows($queryig);
+	
+	if($row1 = 0 ){ // nếu chưa tồn tại địa chỉ mac thì kiểm tra xem địa chỉ mạng tồn tại hay chưa
+		$sql6 = "SELECT * FROM cdata WHERE netip = '".$network_ip."'";
+		$queryig1 = mysql_query($sql6);
+		$row3 = mysql_num_rows($queryig1);
+			if( $row3 = 0){ // nếu chưa tồn tại địa chỉ mạng thì update tất cả
+				$my_query2 = "INSERT INTO cdata(mac, netip, data, nodecat, status) VALUES ('".$mac."', '".$network_ip."', '".$data."', 'sensor', '1')";
+				mysql_query($my_query2);
+				}
+				else{ //tồn tại địa chỉ mang rồi thì update còn lại
+					$my_query3 = "UPDATE cdata SET mac = '".$mac."', data = '".$network_ip."', nodecat = 'sensor', status = '1' WHERE netip = '".$network_ip."'";
+					mysql_query($my_query3);
+					}
+		}
+		else {// tồn tại địa chỉ mac rồi thì update còn lại
+			$my_query4 = "UPDATE cdata SET netip = '".$network_ip."', data = '".$data."', nodecat = 'sensor', status = '1' WHERE mac = '".$mac."'";	
+			mysql_query($my_query4);
+				}
+	
+	
+	}
+	
+	
+	
 if(strpos($result,"AD:")!==false){//#AD:NNNNMMDDDDDDDDEEEE
 		$mac = substr ($result,8,2);//MM
 		$network_ip = substr ($result,4,4);//NNNN
@@ -150,7 +233,7 @@ if(strpos($result,"AD:")!==false){//#AD:NNNNMMDDDDDDDDEEEE
 			if($rowbc == 0)
 			{
 				$insert_bc = "INSERT INTO data_avgbc VALUES('".$mac."','".$tempreture."','".$humidity."','".$energy."','".date('d-m-Y')."')";
-				mysql_query($insert_bc);
+				mysql_query($insert_bc); 
 				}
 			else
 			{
@@ -324,6 +407,8 @@ if(strpos($result,"VL:")!==false){//#VL:
 			$sql="INSERT INTO data_sensor(mac,netip,cat) VALUES ('".$mac."','".$network_ip."',4)";
 		}
 }
+
+
 
 if(strpos($result,"OK:")!==false){//#OK:NNNNMMSS		
 		$network_ip = substr($result, 4,4);
