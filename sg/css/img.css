@@ -1,0 +1,22 @@
+@charset "utf-8";
+/* CSS Document */
+img{
+	transition:all 1s ease;
+	-webkit-transition:all 1s ease;
+	-moz-transition:all 1s ease;
+	-o-transition:all 1s ease;
+	margin:auto;
+	
+	
+	
+	}
+img:hover{
+	transform:scale(2,2);
+	-webkit-transform:scale(2,2);
+	-moz-transform:scale(2,2);
+	-o-transform:scale(2,2);
+	-ms-transform:scale(2,2);
+	z-index:10;
+	
+	}
+
